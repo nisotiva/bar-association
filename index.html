@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Majestic Bar Association</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f5f7;
+            background-image: radial-gradient(at 0% 0%, rgba(197, 202, 233, 0.3) 0, transparent 50%), 
+                              radial-gradient(at 50% 0%, rgba(225, 190, 231, 0.2) 0, transparent 50%);
+            color: #1d1d1f;
+            overflow-x: hidden;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 30px;
+        }
+        .input-apple {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid #d2d2d7;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        .input-apple:focus {
+            border-color: #0071e3;
+            box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.1);
+            outline: none;
+        }
+        .btn-apple {
+            background: #0071e3;
+            color: white;
+            border-radius: 980px;
+            transition: all 0.2s ease;
+        }
+        .btn-apple:hover {
+            background: #0077ed;
+            transform: scale(1.02);
+        }
+        .category-card {
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid transparent;
+        }
+        .category-card.active {
+            border-color: #0071e3;
+            background: white;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-6">
+
+    <header class="text-center mb-12">
+        <h1 class="text-5xl font-semibold tracking-tight mb-4">Коллегия адвокатов</h1>
+        <p class="text-xl text-gray-500 font-light tracking-wide">Majestic RP — Юридическая помощь нового поколения.</p>
+    </header>
+
+    <main class="glass w-full max-w-4xl p-8 md:p-12 shadow-2xl">
+        <form id="appleForm">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+                <div onclick="selectCat(this, 'Иск')" class="category-card active glass p-4 text-center rounded-2xl shadow-sm">
+                    <div class="text-2xl mb-1">📄</div>
+                    <div class="text-xs font-semibold">ПОДАТЬ ИСК</div>
+                </div>
+                <div onclick="selectCat(this, 'Защита')" class="category-card glass p-4 text-center rounded-2xl shadow-sm">
+                    <div class="text-2xl mb-1">🛡️</div>
+                    <div class="text-xs font-semibold">ОТВЕТЧИК</div>
+                </div>
+                <div onclick="selectCat(this, 'Консультация')" class="category-card glass p-4 text-center rounded-2xl shadow-sm">
+                    <div class="text-2xl mb-1">💬</div>
+                    <div class="text-xs font-semibold">ПОМОЩЬ</div>
+                </div>
+                <div onclick="selectCat(this, 'Связь')" class="category-card glass p-4 text-center rounded-2xl shadow-sm">
+                    <div class="text-2xl mb-1">🤝</div>
+                    <div class="text-xs font-semibold">ГЛАВА</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <input type="text" id="name" placeholder="Имя Фамилия (IC)" required class="input-apple px-5 py-3 text-lg">
+                <input type="text" id="staticId" placeholder="Статический ID" required class="input-apple px-5 py-3 text-lg">
+            </div>
+            
+            <input type="text" id="contact" placeholder="Ваш Discord (например, user#0000)" required class="input-apple w-full px-5 py-3 text-lg mb-6">
+            
+            <textarea id="message" rows="4" placeholder="Опишите ситуацию максимально подробно..." required class="input-apple w-full px-5 py-3 text-lg mb-8"></textarea>
+
+            <div class="flex flex-col items-center">
+                <button type="submit" id="submitBtn" class="btn-apple px-10 py-4 text-lg font-medium shadow-xl">
+                    Отправить запрос
+                </button>
+                <p id="status" class="mt-4 text-gray-400 text-sm hidden">Ваше обращение безопасно передано в обработку.</p>
+            </div>
+        </form>
+    </main>
+
+    <footer class="mt-10 text-gray-400 text-sm font-light uppercase tracking-widest">
+        Designed for Majestic • Bar Association 2026
+    </footer>
+
+    <script>
+        let selectedCategory = "Иск";
+
+        function selectCat(el, cat) {
+            document.querySelectorAll('.category-card').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            selectedCategory = cat;
+        }
+
+        const CONFIG = {
+            API: "ТВОЙ_URL_GOOGLE_SCRIPT",
+            KEY: "APPLE_LEGAL_2026"
+        };
+
+        document.getElementById('appleForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerText = "Отправка...";
+
+            const payload = {
+                key: CONFIG.KEY,
+                category: selectedCategory,
+                name: document.getElementById('name').value,
+                staticId: document.getElementById('staticId').value,
+                contact: document.getElementById('contact').value,
+                message: document.getElementById('message').value
+            };
+
+            try {
+                await fetch(CONFIG.API, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+                btn.style.display = "none";
+                document.getElementById('status').classList.remove('hidden');
+            } catch (err) {
+                alert("Ошибка. Проверьте соединение.");
+                btn.disabled = false;
+                btn.innerText = "Попробовать снова";
+            }
+        });
+    </script>
+</body>
+</html>
